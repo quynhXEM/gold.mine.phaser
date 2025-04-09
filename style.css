@@ -1,0 +1,203 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.screen {
+    display: none;
+    width: 800px;
+    height: 600px;
+    background-color: #222;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+    position: relative;
+}
+
+.active {
+    display: block;
+}
+
+/* Start Screen */
+#start-screen {
+    background-color: #222;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.game-title {
+    font-size: 48px;
+    margin-bottom: 50px;
+    color: gold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+#start-button {
+    padding: 15px 40px;
+    font-size: 24px;
+    background-color: gold;
+    color: #222;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#start-button:hover {
+    background-color: #ffd700;
+    transform: scale(1.05);
+}
+
+/* Game Screen */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    border-bottom: 2px solid #444;
+    margin-bottom: 10px;
+}
+
+#game-area {
+    position: relative;
+    background-color: #333;
+    height: 500px;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.miner {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: #888;
+    top: 0;
+    left: 375px;
+}
+
+.rope {
+    position: absolute;
+    width: 5px;
+    background-color: #aaa;
+    left: 397px;
+    top: 50px;
+}
+
+.hook {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #666;
+    border-radius: 50%;
+    left: 390px;
+}
+
+.gold {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    background-color: gold;
+    border-radius: 5px;
+}
+
+.rock {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: #555;
+    border-radius: 5px;
+}
+
+#shop-button {
+    padding: 5px 15px;
+    background-color: gold;
+    color: #222;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Shop Screen */
+.shop-title {
+    font-size: 36px;
+    margin-bottom: 30px;
+    color: gold;
+}
+
+.shop-items {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 30px;
+}
+
+.shop-item {
+    width: 200px;
+    background-color: #333;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.item-image {
+    width: 100px;
+    height: 100px;
+    background-color: #444;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.item-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.item-description {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 10px;
+}
+
+.item-price {
+    color: gold;
+    margin-bottom: 10px;
+}
+
+.buy-button {
+    padding: 5px 15px;
+    background-color: gold;
+    color: #222;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.buy-button:hover {
+    background-color: #ffd700;
+}
+
+#back-to-game {
+    padding: 10px 20px;
+    background-color: #444;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+} 

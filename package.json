@@ -1,0 +1,12 @@
+{
+  "name": "gold-mining-game",
+  "version": "1.0.0",
+  "description": "A classic gold mining game built with Phaser 3",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["game", "phaser", "html5", "javascript", "gold-mining"],
+  "author": "",
+  "license": "MIT"
+} 
