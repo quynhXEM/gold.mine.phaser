@@ -1,11 +1,13 @@
 // Game configuration
 const config = {
-    type: Phaser.AUTO, // Tự động chọn phương thức render
+    type: Phaser.AUTO,
+    width: 2277,           // base width
+    height: 1280,           // base height (16:9)
     scale: {
-        mode: Phaser.Scale.RESIZE, // Thay đổi kích thước theo kích thước của phần tử game-container
-        parent: 'game-container', // Gắn vào phần tử có id game-container
-        width: '100%', // Kích thước 100% của phần tử cha
-        height: '100%' // Kích thước 100% của phần tử cha
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 2277,
+        height: 1280,
     },
     physics: {
         default: 'arcade', // Sử dụng phương thức vật lý arcade
@@ -14,7 +16,7 @@ const config = {
             debug: false // Không hiển thị debug
         }
     },
-    scene: [StartScene, GameScene, ShopScene] // Các scene sẽ được hiển thị trong game
+    scene: [StartScene, SelectGameScene, GameScene, ShopScene] // Các scene sẽ được hiển thị trong game
 };
 
 // Global game state that persists between scenes
