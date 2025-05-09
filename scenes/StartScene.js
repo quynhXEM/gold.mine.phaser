@@ -2,8 +2,8 @@ class StartScene extends Phaser.Scene {
     constructor() {
         super({ key: 'StartScene' });
         // Base screen size for scaling calculations
-        this.baseWidth = 1920;
-        this.baseHeight = 1080;
+        this.baseWidth = 2277;
+        this.baseHeight = 1280;
 
         // Button size constraints
         this.minButtonWidth = 100;
@@ -26,61 +26,37 @@ class StartScene extends Phaser.Scene {
         this.bg = this.add.image(this.gameWidth / 2, this.gameHeight / 2, 'background');
         this.scaleBackgroundToFill(this.bg, this.gameWidth, this.gameHeight);
 
-        // Calculate scale factor based on screen width
-        const scaleFactor = this.calculateScaleFactor();
-
-        // Add game title with dynamic font size
-        this.gameTitle = this.add.text(this.gameWidth / 2, this.gameHeight / 3, 'GOLD MINER GAME', {
-            font: `${Math.round(64 * scaleFactor)}px Nashville`,
-            fill: '#ffd700',
-            align: 'center',
-            shadow: {
-                offsetX: 2,
-                offsetY: 2,
-                color: '#000',
-                blur: 2,
-                stroke: true,
-                fill: true
-            }
-        }).setOrigin(0.5);
-
-        // Add start button
-        this.startButton = this.add.image(this.gameWidth / 2, this.gameHeight / 1.8, 'start-button').setInteractive();
-
-        // Scale button with constraints
-        const buttonSize = this.calculateButtonSize(scaleFactor);
-        this.startButton.setDisplaySize(buttonSize.width, buttonSize.height);
-
-        // Add hover effect
-        this.startButton.on('pointerover', () => {
-            this.startButton.setScale(this.startButton.scaleX * 1.1, this.startButton.scaleY * 1.1);
-        });
-
-        this.startButton.on('pointerout', () => {
-            this.startButton.setDisplaySize(buttonSize.width, buttonSize.height);
-        });
-
-        // Add click event to transition to game scene
-        this.startButton.on('pointerdown', () => {
-            this.scene.start('GameScene');
-        });
+        // Make the background interactive
+        this.bg.setInteractive();
 
         // Add resize listener
         this.scale.on('resize', this.resize, this);
-    }
 
-    // Calculate button size with constraints
-    calculateButtonSize(scaleFactor) {
-        // Calculate proportional width
-        let width = 200 * scaleFactor;
+        // Thêm dòng chữ "Tap to Start" ở giữa màn hình
+        this.tapText = this.add.text(this.gameWidth / 2, this.gameHeight / 2, 'Tap to Start', {
+            fontFamily: 'MyFont',
+            fontSize: '144px',
+            stroke: '#671700',         // màu viền
+            strokeThickness: 16,
+            fill: '#f8e600'
+        }).setOrigin(0.5);
 
-        // Apply constraints
-        width = Math.max(this.minButtonWidth, Math.min(this.maxButtonWidth, width));
+        // Tạo hiệu ứng nhấp nháy bằng tween
+        this.tweens.add({
+            targets: this.tapText,
+            alpha: { from: 1, to: 0 },
+            duration: 1000,
+            yoyo: true,
+            repeat: -1
+        });
 
-        // Calculate height based on width to maintain aspect ratio
-        const height = width / this.buttonRatio;
-
-        return { width, height };
+        // Add click event to start the game
+        this.bg.on('pointerdown', () => {
+            this.cameras.main.fadeOut(500, 0, 0, 0);
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('AuthScene');
+            });
+        });
     }
 
     // Calculate scale factor based on screen size
@@ -92,23 +68,19 @@ class StartScene extends Phaser.Scene {
 
     // Scale background to fill screen while maintaining aspect ratio
     scaleBackgroundToFill(image, targetWidth, targetHeight) {
-        // Get the image's original dimensions
+        // Lấy kích thước gốc của ảnh
         const imgWidth = image.width;
-        const imgHeight = image.height;
 
-        // Calculate scale ratios
-        const scaleX = targetWidth / imgWidth;
-        const scaleY = targetHeight / imgHeight;
+        // Tính tỉ lệ scale theo chiều ngang
+        const scale = targetWidth / imgWidth;
 
-        // Use the larger scale to ensure the image covers the entire screen
-        const scale = Math.max(scaleX, scaleY);
-
-        // Apply the scale
+        // Áp dụng scale giữ nguyên tỉ lệ gốc của ảnh
         image.setScale(scale);
 
-        // Center the image
+        // Đặt lại vị trí để ảnh được căn giữa theo chiều dọc
         image.setPosition(targetWidth / 2, targetHeight / 2);
     }
+
 
     resize(gameSize) {
         // Update game dimensions
@@ -117,17 +89,7 @@ class StartScene extends Phaser.Scene {
 
         // Update background to fit new dimensions while maintaining aspect ratio
         this.scaleBackgroundToFill(this.bg, this.gameWidth, this.gameHeight);
+        this.tapText.setPosition(this.gameWidth / 2, this.gameHeight / 2);
 
-        // Calculate new scale factor
-        const scaleFactor = this.calculateScaleFactor();
-
-        // Update font size
-        this.gameTitle.setPosition(this.gameWidth / 2, this.gameHeight / 3);
-        this.gameTitle.setFontSize(Math.round(64 * scaleFactor));
-
-        // Update button size and position with constraints
-        const buttonSize = this.calculateButtonSize(scaleFactor);
-        this.startButton.setPosition(this.gameWidth / 2, this.gameHeight / 1.8);
-        this.startButton.setDisplaySize(buttonSize.width, buttonSize.height);
     }
 }

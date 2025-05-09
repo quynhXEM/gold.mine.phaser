@@ -1,8 +1,7 @@
-class GameScene extends Phaser.Scene {
+class RentedMineGameScene extends Phaser.Scene {
     constructor() {
-        super({ key: 'GameScene' });
+        super({ key: 'RentedMineGameScene' });
         // Thời gian chơi game (giây)
-        this.gameTime = 10;
         // Trạng thái hook đang mở rộng
         this.hookExtending = false;
         // Trạng thái hook đang thu hồi
@@ -27,25 +26,28 @@ class GameScene extends Phaser.Scene {
 
     preload() {
         // Tải hình ảnh cho game
-        this.load.image('backgrounds', 'assets/images/backgrounds.png');
+        this.load.image('backgrounds', 'assets/images/background-mine.png');
         this.load.image('miner', 'assets/images/user.png');
-        this.load.image('hook', 'assets/images/pickaxe.png');
-        this.load.image('gold-small', 'assets/images/gold.png');
-        this.load.image('gold-medium', 'assets/images/gold.png');
-        this.load.image('gold-large', 'assets/images/gold.png');
-        this.load.image('rock-small', 'https://png.pngtree.com/png-clipart/20231019/original/pngtree-close-up-of-big-stone-isolated-big-rock-png-image_13370758.png');
-        this.load.image('rock-medium', 'https://png.pngtree.com/png-clipart/20240723/original/pngtree-nature-s-giants--big-rock-stone-illustrations-png-image_15618621.png');
-        this.load.image('rock-large', 'https://png.pngtree.com/png-clipart/20240723/original/pngtree-nature-s-giants--big-rock-stone-illustrations-png-image_15618621.png');
-        this.load.image('shop-button', 'https://cdn.pixabay.com/photo/2017/03/13/23/28/icon-2141484_1280.png');
+        this.load.image('mine-door', 'assets/images/mine-door.png');
+        this.load.image('wood', 'assets/images/wood.png');
+        this.load.image('back', 'assets/images/back.png');
+        this.load.image('hook', 'assets/images/hook.png');
+        this.load.image('gold-small', 'assets/images/gold-1.png');
+        this.load.image('gold-medium', 'assets/images/gold-2.png');
+        this.load.image('gold-large', 'assets/images/gold-3.png');
+        this.load.image('rock-small', 'assets/images/rock-1.png');
+        this.load.image('rock-medium', 'assets/images/rock-2.png');
+        this.load.image('rock-large', 'assets/images/rock-3.png');
+        this.load.image('shop-button', 'assets/images/shop.png');
         this.load.audio('boom', 'assets/sounds/boom.mp3');
         this.load.audio('mine', 'assets/sounds/mine.mp3');
         this.load.audio('collect', 'assets/sounds/collect.mp3');
     }
 
     create() {
+        this.cameras.main.fadeIn(500, 0, 0, 0);
         // Khởi tạo lại trạng thái game nếu cần
         this.gameOver = false;
-        this.gameTime = 30;
         this.hookExtending = false;
         this.hookRetracting = false;
         this.hookLength = 0;
@@ -54,27 +56,42 @@ class GameScene extends Phaser.Scene {
         this.swingDirection = 1;
 
         // Lấy kích thước màn hình game
-        this.gameWidth = this.scale.width;
-        this.gameHeight = this.scale.height;
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
 
         // Tạo nền cho khu vực game
-        this.background = this.add.image(this.gameWidth / 2, this.gameHeight / 2 + 100, 'backgrounds')
-        .setDisplaySize(this.gameWidth, this.gameHeight)
-        .setInteractive();
+        const background = this.add.image(gameWidth / 2, gameHeight / 2 + 100, 'backgrounds')
+        this.scaleBackgroundToFill(background, gameWidth, gameHeight)
+
+        // Back
+        const backButton = this.add.image(20, 20, `back`)
+            .setScale(0.09, 0.1)
+            .setOrigin(0, 0)
+            .setInteractive()
+            .setPosition(10, 0);
+
+
+        backButton.on('pointerdown', () => {
+            this.scene.start('SelectGameScene');
+        });
 
         // Tạo người thợ mỏ ở vị trí trên cùng giữa màn hình
-        this.miner = this.add.image(this.gameWidth / 2, 100, 'miner');
-        this.miner.setDisplaySize(100, 200);
+        this.miner = this.add.image(gameWidth / 2, 0, 'mine-door')
+            .setPosition(gameWidth / 2, 270)
+            .setOrigin(0.5, 0.75);
+
+        this.miner = this.add.image(gameWidth / 2, 0, 'miner')
+            .setPosition(gameWidth / 2, 330)
+            .setOrigin(0.75, 0.75);
+        this.miner.setDisplaySize(150, 160);
 
         // Tạo hook và dây
         this.rope = this.add.graphics();
-        this.hook = this.physics.add.image(this.gameWidth / 2, 50, 'hook');
-
-        // Đặt điểm gốc quay của hook ở giữa để quay quanh tâm
+        this.hook = this.physics.add.image(gameWidth / 2, 0, 'hook');
         this.hook.setOrigin(0.5, 0.5);
-        this.hook.setDisplaySize(40, 40);
+        this.hook.setDisplaySize(20, 20);
         // Thiết lập ranh giới thế giới game
-        this.physics.world.setBounds(0, 0, this.gameWidth, this.gameHeight);
+        this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
 
         // Cấu hình hook để va chạm với ranh giới thế giới
         this.hook.setCollideWorldBounds(true);
@@ -90,58 +107,43 @@ class GameScene extends Phaser.Scene {
 
         // Tạo vàng và đá
         this.treasures = this.physics.add.group();
-        this.spawnTreasures();
+        this.spawnTreasures(gameWidth, gameHeight);
 
         // Tạo các phần tử giao diện người dùng
-        this.scoreText = this.add.text(20, 20, `Gold: ${gameState.score}`, { fontSize: '24px', fill: '#ffd700' });
-        this.timeText = this.add.text(this.gameWidth / 2, 20, `Time: ${this.gameTime}s`, { fontSize: '24px', fill: '#ffffff' }).setOrigin(0.5, 0);
 
+
+
+        // Score
+        this.bg_scoreText = this.add.image(0, 0, `wood`)
+            .setScale(0.25, 0.1)
+            .setOrigin(0, 0)
+            .setPosition(0, 100);
+        this.scoreText = this.add.text(0, 0, `Gold: ${gameState.gold}`, {
+            fontSize: '34px',
+            fontFamily: 'MyFont',
+            fill: '#ffd700'
+        })
+            .setOrigin(0, 0)
+            .setPosition(60, 130);
         // Tạo nút Shop ở bên phải
-        const shopButton = this.add.image(this.gameWidth - 80, 30, 'shop-button').setInteractive();
-        shopButton.setDisplaySize(40, 40);
-        shopButton.setTint(0xdd8153);
-        shopButton.on('pointerdown', () => {
-            this.scene.launch('ShopScene');
-            this.scene.pause();
-        });
+        const shadow = this.add.image(gameWidth - 200 + 7, 200 + 7, 'shop-button');
+        shadow.setTint(0x000000); // Tô màu đen
+        shadow.setAlpha(0.5); // Làm mờ
+        shadow.setDisplaySize(250, 250);
 
-        // Thiết lập bộ đếm thời gian game
-        this.gameTimer = this.time.addEvent({
-            delay: 1000,
-            callback: this.updateTimer,
-            callbackScope: this,
-            loop: true
+        const shopButton = this.add.image(gameWidth - 200, 200, 'shop-button')
+            .setInteractive()
+            .setDisplaySize(250, 250);
+
+        shopButton.on('pointerdown', () => {
+            this.scene.pause();
+            this.scene.launch('ShopScene');
         });
 
         // Thiết lập điều khiển bàn phím cho các phím mũi tên
         this.cursors = this.input.keyboard.createCursorKeys();
 
-        // Thêm lắng nghe sự kiện thay đổi kích thước
-        this.scale.on('resize', this.resize, this);
     }
-
-    // Xử lý khi thay đổi kích thước màn hình
-    resize(gameSize) {
-        // Cập nhật kích thước game
-        this.gameWidth = gameSize.width;
-        this.gameHeight = gameSize.height;
-
-        // Cập nhật nền
-        this.background.setSize(this.gameWidth, this.gameHeight);
-        this.background.setPosition(this.gameWidth / 2, this.gameHeight / 2);
-
-        // Cập nhật ranh giới thế giới theo kích thước mới
-        this.physics.world.setBounds(0, 0, this.gameWidth, this.gameHeight);
-
-        // Cập nhật vị trí các phần tử giao diện
-        this.miner.setPosition(this.gameWidth / 2, 50);
-        this.timeText.setPosition(this.gameWidth / 2, 20);
-        this.scoreText.setPosition(20, 20);
-
-        // Tạo lại vật phẩm để phù hợp với kích thước màn hình mới
-        this.spawnTreasures();
-    }
-
     // Xử lý khi hook va chạm với ranh giới thế giới
     onHitWorldBounds(up, down, left, right) {
         // Bắt đầu thu hồi CHỈ KHI chạm ranh giới và vẫn đang mở rộng
@@ -149,22 +151,13 @@ class GameScene extends Phaser.Scene {
             this.hookExtending = false;
             this.hookRetracting = true;
 
-            // Hiển thị thông tin debug về ranh giới bị chạm
-            if (this.debugText) {
-                let hitDirection = '';
-                if (up) hitDirection = 'top';
-                if (down) hitDirection = 'bottom';
-                if (left) hitDirection = 'left';
-                if (right) hitDirection = 'right';
-                this.debugText.setText(`Hit ${hitDirection} boundary`);
-            }
         }
     }
 
-    update() {
+    update(gameWidth, gameHeight) {
         if (this.gameOver) return;
         // Cập nhật chuyển động lắc của hook
-        this.updateHookSwing();
+        this.updateHookSwing(gameWidth, gameHeight);
 
         // Kiểm tra phím mũi tên xuống để mở rộng hook
         if ((this.cursors.down.isDown || this.cursors.space.isDown) && !this.hookExtending && !this.hookRetracting) {
@@ -173,16 +166,16 @@ class GameScene extends Phaser.Scene {
 
         // Cập nhật độ dài và vị trí của dây
         if (this.hookExtending) {
-            this.extendRope();
+            this.extendRope(gameWidth, gameHeight);
         } else if (this.hookRetracting) {
-            this.retractRope();
+            this.retractRope(gameWidth, gameHeight);
         }
 
         // Vẽ dây từ người thợ đến hook
-        this.drawRope();
+        this.drawRope(gameWidth, gameHeight);
 
         // Cập nhật góc quay của hook theo góc của dây
-        this.updateHookRotation();
+        this.updateHookRotation(gameWidth, gameHeight);
 
         // Nếu hook có vật phẩm, di chuyển vật phẩm theo hook
         if (this.hookedItem) {
@@ -198,7 +191,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Cập nhật chuyển động lắc của hook
-    updateHookSwing() {
+    updateHookSwing(gameWidth, gameHeight) {
         // Chỉ lắc khi hook không mở rộng hoặc thu hồi
         if (!this.hookExtending && !this.hookRetracting) {
             // Cập nhật góc lắc
@@ -210,7 +203,7 @@ class GameScene extends Phaser.Scene {
             }
 
             // Tính toán vị trí hook dựa trên góc và độ dài dây mặc định
-            const baseRopeLength = 50; // Khoảng cách cơ bản khi không mở rộng
+            const baseRopeLength = 80; // Khoảng cách cơ bản khi không mở rộng
             const hookX = this.miner.x + Math.sin(this.swingAngle) * baseRopeLength;
             const hookY = this.miner.y + Math.cos(this.swingAngle) * baseRopeLength;
 
@@ -221,12 +214,12 @@ class GameScene extends Phaser.Scene {
     }
 
     // Vẽ dây
-    drawRope() {
+    drawRope(gameWidth, gameHeight) {
         // Xóa dây cũ
         this.rope.clear();
 
         // Vẽ đường dây từ người thợ đến hook
-        this.rope.lineStyle(5, 0xdd8153);
+        this.rope.lineStyle(5, 0xffd700);
         this.rope.beginPath();
         this.rope.moveTo(this.miner.x, this.miner.y);
         this.rope.lineTo(this.hook.x, this.hook.y);
@@ -235,7 +228,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Tạo vật phẩm
-    spawnTreasures() {
+    spawnTreasures(gameWidth, gameHeight) {
         // Xóa tất cả vật phẩm hiện có
         this.treasures.clear(true, true);
 
@@ -250,12 +243,12 @@ class GameScene extends Phaser.Scene {
         };
 
         // Tạo vàng và đá ngẫu nhiên
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 45; i++) {
             // Điều chỉnh khu vực tạo theo kích thước màn hình
-            const x = Phaser.Math.Between(100, this.gameWidth - 100);
-            const y = Phaser.Math.Between(200, this.gameHeight - 100);
+            const x = Phaser.Math.Between(50, gameWidth - 50);
+            const y = Phaser.Math.Between(400, gameHeight - 50);
 
-            if (Phaser.Math.Between(1, 10) <= 5) {
+            if (Phaser.Math.Between(1, 10) <= 4) {
                 // Chọn kích thước vàng ngẫu nhiên
                 const goldType = Phaser.Math.Between(1, 3);
                 let goldKey, goldValue, goldSize;
@@ -338,7 +331,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Mở rộng dây
-    extendRope() {
+    extendRope(gameWidth, gameHeight) {
         // Lưu góc hiện tại khi bắt đầu mở rộng
         if (this.hookLength === 0) {
             this.extendAngle = this.swingAngle;
@@ -346,10 +339,9 @@ class GameScene extends Phaser.Scene {
 
         // Tính toán tốc độ tương đối với kích thước màn hình
         const baseSpeed = 3;
-        const speedMultiplier = Math.max(this.gameHeight / 1040);
 
         // Tăng độ dài dây với tốc độ dựa trên kích thước màn hình và nâng cấp
-        this.hookLength += baseSpeed * speedMultiplier * gameState.upgrades.ropeSpeed;
+        this.hookLength += baseSpeed * gameState.upgrades.ropeSpeed;
 
         // Tính toán vị trí hook dựa trên góc cố định và độ dài tăng dần
         const hookX = this.miner.x + Math.sin(this.extendAngle) * (this.hookLength + 50);
@@ -361,7 +353,7 @@ class GameScene extends Phaser.Scene {
     }
 
     // Thu hồi dây
-    retractRope() {
+    retractRope(gameWidth, gameHeight) {
         // Tốc độ thu hồi cơ bản dựa trên nâng cấp
         let retractSpeed = 4 * gameState.upgrades.ropeSpeed;
 
@@ -415,8 +407,8 @@ class GameScene extends Phaser.Scene {
 
             // Nếu đang mang vật phẩm, cộng điểm và xóa vật phẩm
             if (this.hookedItem) {
-                gameState.score += this.hookedItem.getData('value');
-                this.scoreText.setText('Gold: ' + gameState.score);
+                gameState.gold += this.hookedItem.getData('value');
+                this.scoreText.setText('Gold: ' + gameState.gold);
                 this.hookedItem.destroy();
                 this.hookedItem = null;
             }
@@ -424,7 +416,7 @@ class GameScene extends Phaser.Scene {
             // Tạo vật phẩm mới nếu tất cả đã được thu thập
             let treasuresRemaining = this.treasures.getChildren().length;
             if (treasuresRemaining === 0) {
-                this.spawnTreasures();
+                this.spawnTreasures(gameWidth, gameHeight);
             }
         }
     }
@@ -440,43 +432,8 @@ class GameScene extends Phaser.Scene {
         this.hookRetracting = true;
     }
 
-    // Cập nhật bộ đếm thời gian
-    updateTimer() {
-        this.gameTime--;
-        this.timeText.setText('Time: ' + this.gameTime + 's');
-
-        // Kết thúc game khi hết thời gian
-        if (this.gameTime <= 0) {
-            this.gameOver = true;
-            this.gameTimer.remove();
-            this.endGame();
-        }
-    }
-
-    // Kết thúc game
-    endGame() {
-        // Hiển thị thông báo kết thúc game
-        const messageBox = this.add.rectangle(this.gameWidth / 2, this.gameHeight / 2, 400, 200, 0x000000, 0.8).setOrigin(0.5);
-        const gameOverText = this.add.text(this.gameWidth / 2, this.gameHeight / 2 - 40, 'Game Over!', { fontSize: '32px', fill: '#ffffff' }).setOrigin(0.5);
-        const scoreText = this.add.text(this.gameWidth / 2, this.gameHeight / 2 + 10, 'Final Score: ' + gameState.score, { fontSize: '24px', fill: '#ffd700' }).setOrigin(0.5);
-
-        // Nút chơi lại
-        const restartButton = this.add.text(this.gameWidth / 2, this.gameHeight / 2 + 60, 'Play Again', {
-            fontSize: '20px',
-            fill: '#ffffff',
-            backgroundColor: '#444444',
-            padding: { x: 10, y: 5 }
-        }).setOrigin(0.5).setInteractive();
-
-        restartButton.on('pointerdown', () => {
-            gameState.score = 0;
-            this.scene.restart();
-        });
-
-    }
-
     // Cập nhật góc quay của hook dựa trên góc của dây
-    updateHookRotation() {
+    updateHookRotation(gameWidth, gameHeight) {
         // Tính góc của dây (góc giữa người thợ và hook)
         const dx = this.hook.x - this.miner.x;
         const dy = this.hook.y - this.miner.y;
@@ -484,5 +441,13 @@ class GameScene extends Phaser.Scene {
 
         // Đặt góc quay của hook theo góc của dây
         this.hook.setRotation(- ropeAngle);
+    }
+
+    // Scale background to fill
+    scaleBackgroundToFill(image, targetWidth, targetHeight) {
+        const imgWidth = image.width;
+        const scale = targetWidth / imgWidth;
+        image.setScale(scale);
+        image.setPosition(targetWidth / 2, targetHeight / 2);
     }
 } 
