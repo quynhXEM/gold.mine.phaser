@@ -52,7 +52,7 @@ class StartScene extends Phaser.Scene {
 
         // Add click event to start the game
         this.bg.on('pointerdown', () => {
-            this.scene.start('SelectGameScene');
+            this.scene.start('AuthScene');
         });
     }
 

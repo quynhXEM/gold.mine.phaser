@@ -16,7 +16,11 @@ const config = {
             debug: false // Không hiển thị debug
         }
     },
-    scene: [StartScene, SelectGameScene, GameScene, ShopScene] // Các scene sẽ được hiển thị trong game
+    parent: 'game-container',
+    dom: {
+        createContainer: true
+    },
+    scene: [StartScene,  AuthScene, SelectGameScene, GameScene, ShopScene] // Các scene sẽ được hiển thị trong game
 };
 
 // Global game state that persists between scenes
