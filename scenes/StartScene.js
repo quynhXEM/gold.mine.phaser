@@ -52,7 +52,10 @@ class StartScene extends Phaser.Scene {
 
         // Add click event to start the game
         this.bg.on('pointerdown', () => {
-            this.scene.start('AuthScene');
+            this.cameras.main.fadeOut(500, 0, 0, 0);
+            this.cameras.main.once('camerafadeoutcomplete', () => {
+                this.scene.start('AuthScene');
+            });
         });
     }
 

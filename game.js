@@ -20,12 +20,19 @@ const config = {
     dom: {
         createContainer: true
     },
-    scene: [StartScene,  AuthScene, SelectGameScene, GameScene, ShopScene] // Các scene sẽ được hiển thị trong game
+    scene: [
+        // StartScene,
+        // AuthScene,
+        // SelectGameScene,
+        // InputMineScene,
+        RentedMineGameScene,
+        ShopScene
+    ] // Các scene sẽ được hiển thị trong game
 };
 
 // Global game state that persists between scenes
 const gameState = {
-    score: 1000, // Điểm số của người chơi
+    gold: 1000, // Điểm số của người chơi
     upgrades: {
         ropeSpeed: 1, // Tốc độ kéo dây
         hookStrength: 1, // Độ mạnh của hook

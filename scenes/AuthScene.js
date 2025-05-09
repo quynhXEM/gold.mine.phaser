@@ -12,7 +12,7 @@ class AuthScene extends Phaser.Scene {
     }
 
     create() {
-
+        this.cameras.main.fadeIn(500, 0, 0, 0);
         // Get game dimensions
         const gameWidth = this.scale.width;
         const gameHeight = this.scale.height;
@@ -38,9 +38,9 @@ class AuthScene extends Phaser.Scene {
             .setInteractive();
 
         // // Create login form
-        const usernameInput = this.add.dom(0, 300).createFromHTML('<input class="w-[500px] h-[50px] rounded-full bg-white text-4xl pl-8" type="text" name="username" placeholder="Username">')
+        const usernameInput = this.add.dom(0, 300).createFromHTML('<input value="admin" class="w-[500px] h-[50px] rounded-full bg-white text-4xl pl-8" type="text" name="username" placeholder="Username">')
             .setOrigin(1.75, 0.5);
-        const passwordInput = this.add.dom(0, 370).createFromHTML('<input class="w-[500px] h-[50px] rounded-full bg-white text-4xl pl-8" type="password" name="password" placeholder="Password">')
+        const passwordInput = this.add.dom(0, 370).createFromHTML('<input value="123" class="w-[500px] h-[50px] rounded-full bg-white text-4xl pl-8" type="password" name="password" placeholder="Password">')
             .setOrigin(1.75, 0.5);
         const loginSubmit = this.add.image(0, 470, 'login-btn',)
             .setOrigin(0.5, 0.5)
