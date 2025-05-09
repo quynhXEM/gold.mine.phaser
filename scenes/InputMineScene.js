@@ -36,9 +36,8 @@ class InputMineScene extends Phaser.Scene {
             .setInteractive();
 
         // // Create login form
-        const mineID = this.add.dom(0, 320).createFromHTML('<input value="1" class="w-[500px] h-[50px] rounded-full bg-white text-4xl text-center" type="text" name="mine-id" placeholder="Mine ID">')
-            .setOrigin(1.75, 0.5);
-
+        const mineID = this.add.dom(625, 320).createFromHTML('<input value="1" class="w-[500px] h-[50px] rounded-full bg-white text-4xl text-center" type="text" name="mine-id" placeholder="Mine ID">')
+            .setOrigin(1.75, 0.5)
         const loginSubmit = this.add.image(0, 450, 'confirm-btn',)
             .setOrigin(0.5, 0.5)
             .setScale(0.5)

@@ -30,7 +30,8 @@ class RentedMineGameScene extends Phaser.Scene {
         this.load.image('miner', 'assets/images/user.png');
         this.load.image('mine-door', 'assets/images/mine-door.png');
         this.load.image('wood', 'assets/images/wood.png');
-        // this.load.image('hook', 'assets/images/pickaxe.png');
+        this.load.image('back', 'assets/images/back.png');
+        this.load.image('hook', 'assets/images/hook.png');
         this.load.image('gold-small', 'assets/images/gold-1.png');
         this.load.image('gold-medium', 'assets/images/gold-2.png');
         this.load.image('gold-large', 'assets/images/gold-3.png');
@@ -61,6 +62,18 @@ class RentedMineGameScene extends Phaser.Scene {
         // Tạo nền cho khu vực game
         const background = this.add.image(gameWidth / 2, gameHeight / 2 + 100, 'backgrounds')
         this.scaleBackgroundToFill(background, gameWidth, gameHeight)
+
+        // Back
+        const backButton = this.add.image(20, 20, `back`)
+            .setScale(0.09, 0.1)
+            .setOrigin(0, 0)
+            .setInteractive()
+            .setPosition(10, 0);
+
+
+        backButton.on('pointerdown', () => {
+            this.scene.start('SelectGameScene');
+        });
 
         // Tạo người thợ mỏ ở vị trí trên cùng giữa màn hình
         this.miner = this.add.image(gameWidth / 2, 0, 'mine-door')
@@ -97,17 +110,21 @@ class RentedMineGameScene extends Phaser.Scene {
         this.spawnTreasures(gameWidth, gameHeight);
 
         // Tạo các phần tử giao diện người dùng
-        this.scoreText = this.add.image(20, 20, `wood`)
-            .setScale(0.3, 0.1)
+
+
+
+        // Score
+        this.bg_scoreText = this.add.image(0, 0, `wood`)
+            .setScale(0.25, 0.1)
             .setOrigin(0, 0)
-            .setPosition(0, 0);
-        this.scoreText = this.add.text(20, 20, `GOLD: ${gameState.gold}`, {
+            .setPosition(0, 100);
+        this.scoreText = this.add.text(0, 0, `Gold: ${gameState.gold}`, {
             fontSize: '34px',
             fontFamily: 'MyFont',
             fill: '#ffd700'
         })
             .setOrigin(0, 0)
-            .setPosition(60, 30);
+            .setPosition(60, 130);
         // Tạo nút Shop ở bên phải
         const shadow = this.add.image(gameWidth - 200 + 7, 200 + 7, 'shop-button');
         shadow.setTint(0x000000); // Tô màu đen
@@ -119,7 +136,8 @@ class RentedMineGameScene extends Phaser.Scene {
             .setDisplaySize(250, 250);
 
         shopButton.on('pointerdown', () => {
-            this.scene.start('ShopScene');
+            this.scene.pause();
+            this.scene.launch('ShopScene');
         });
 
         // Thiết lập điều khiển bàn phím cho các phím mũi tên
@@ -201,7 +219,7 @@ class RentedMineGameScene extends Phaser.Scene {
         this.rope.clear();
 
         // Vẽ đường dây từ người thợ đến hook
-        this.rope.lineStyle(5, 0x717a81);
+        this.rope.lineStyle(5, 0xffd700);
         this.rope.beginPath();
         this.rope.moveTo(this.miner.x, this.miner.y);
         this.rope.lineTo(this.hook.x, this.hook.y);

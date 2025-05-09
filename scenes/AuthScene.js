@@ -12,6 +12,12 @@ class AuthScene extends Phaser.Scene {
     }
 
     create() {
+
+        const user = sessionStorage.getItem('user');
+        if (user) {
+            this.scene.start('SelectGameScene');
+        }
+
         this.cameras.main.fadeIn(500, 0, 0, 0);
         // Get game dimensions
         const gameWidth = this.scale.width;
@@ -59,6 +65,7 @@ class AuthScene extends Phaser.Scene {
                 return;
             }
             if (username === 'admin' && password === '123') {
+                sessionStorage.setItem('user', username);
                 this.scene.start('SelectGameScene');
             } else {
                 alert('Username or password is incorrect');

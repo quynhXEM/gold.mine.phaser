@@ -10,6 +10,7 @@ class SelectGameScene extends Phaser.Scene {
         this.load.image('select-mine-background', 'assets/images/select-mine-background.png');
         this.load.image('free-mine', 'assets/images/free-mine.png');
         this.load.image('rented-mine', 'assets/images/rented-mine.png');
+        this.load.image('back', 'assets/images/back.png');
     }
 
     create() {
@@ -19,6 +20,37 @@ class SelectGameScene extends Phaser.Scene {
 
         const bg = this.add.image(gameWidth / 2, gameHeight / 2, 'select-mine-background');
         this.scaleBackgroundToFill(bg, gameWidth, gameHeight);
+
+        // Back
+        const backButton = this.add.image(20, 20, `back`)
+            .setScale(0.09, 0.1)
+            .setOrigin(0, 0)
+            .setInteractive()
+            .setPosition(10, 0);
+
+
+        backButton.on('pointerdown', () => {
+            this.scene.start('StartScene');
+        });
+
+        // Back
+        const logoutButton = this.add.text(20, 20, `LOGOUT`, {
+            fontFamily: 'MyFont',
+            fontSize: '48px',
+            stroke: '#671700',         // màu viền
+            strokeThickness: 16,
+            fill: '#ffffff'
+        })
+            .setOrigin(0, 0)
+            .setInteractive()
+            .setPosition(gameWidth - 200, 20);
+
+
+        logoutButton.on('pointerdown', () => {
+            sessionStorage.removeItem('user');
+            this.scene.start('StartScene');
+        });
+
 
         const optionSpacing = 500;
         const optionWidth = 200;
