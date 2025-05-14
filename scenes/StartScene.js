@@ -13,7 +13,7 @@ class StartScene extends Phaser.Scene {
 
     preload() {
         // Load assets for the start screen
-        this.load.image('background', 'assets/images/background.jpg');
+        this.load.image('background', 'assets/images/start_bg.jpg');
         this.load.image('start-button', 'assets/images/play-btn.png');
     }
 
@@ -29,17 +29,33 @@ class StartScene extends Phaser.Scene {
         // Make the background interactive
         this.bg.setInteractive();
 
-        // Add resize listener
-        this.scale.on('resize', this.resize, this);
-
         // Thêm dòng chữ "Tap to Start" ở giữa màn hình
-        this.tapText = this.add.text(this.gameWidth / 2, this.gameHeight / 2, 'Tap to Start', {
+        this.tapText = this.add.text(820, 550, 'START', {
             fontFamily: 'MyFont',
-            fontSize: '144px',
+            fontSize: '100px',
             stroke: '#671700',         // màu viền
             strokeThickness: 16,
-            fill: '#f8e600'
-        }).setOrigin(0.5);
+            fill: '#ffffff'
+        }).setOrigin(0.5)
+        .setPosition(820, 560)
+
+        this.up = this.add.text(820, 550, '⬇️ Drop Claw', {
+            fontFamily: 'MyFont',
+            fontSize: '60px',
+            stroke: '#671700',         // màu viền
+            strokeThickness: 16,
+            fill: '#ffffff'
+        }).setOrigin(0.5)
+        .setPosition(350, this.gameHeight - 70)
+
+        this.down = this.add.text(820, 550, '⬆️ Toss Dynamite', {
+            fontFamily: 'MyFont',
+            fontSize: '60px',
+            stroke: '#671700',         // màu viền
+            strokeThickness: 16,
+            fill: '#ffffff'
+        }).setOrigin(0.5)
+        .setPosition(850, this.gameHeight - 70)
 
         // Tạo hiệu ứng nhấp nháy bằng tween
         this.tweens.add({
@@ -59,13 +75,6 @@ class StartScene extends Phaser.Scene {
         });
     }
 
-    // Calculate scale factor based on screen size
-    calculateScaleFactor() {
-        // Calculate based on width or height, whichever is smaller
-        const widthRatio = this.gameWidth / (this.baseWidth - 200);
-        return Math.min(widthRatio);
-    }
-
     // Scale background to fill screen while maintaining aspect ratio
     scaleBackgroundToFill(image, targetWidth, targetHeight) {
         // Lấy kích thước gốc của ảnh
@@ -79,17 +88,5 @@ class StartScene extends Phaser.Scene {
 
         // Đặt lại vị trí để ảnh được căn giữa theo chiều dọc
         image.setPosition(targetWidth / 2, targetHeight / 2);
-    }
-
-
-    resize(gameSize) {
-        // Update game dimensions
-        this.gameWidth = gameSize.width;
-        this.gameHeight = gameSize.height;
-
-        // Update background to fit new dimensions while maintaining aspect ratio
-        this.scaleBackgroundToFill(this.bg, this.gameWidth, this.gameHeight);
-        this.tapText.setPosition(this.gameWidth / 2, this.gameHeight / 2);
-
     }
 }
