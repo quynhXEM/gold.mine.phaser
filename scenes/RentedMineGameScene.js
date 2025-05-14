@@ -13,6 +13,8 @@ class RentedMineGameScene extends Phaser.Scene {
         // Vật phẩm đang được hook móc
         this.hookedItem = null;
         this.gameOver = false;
+        // Thêm biến theo dõi trạng thái touch
+        this.isTouching = false;
 
         // Các tham số cho chuyển động lắc lư
         this.swingAngle = 0; // Góc lắc hiện tại
@@ -26,18 +28,19 @@ class RentedMineGameScene extends Phaser.Scene {
 
     preload() {
         // Tải hình ảnh cho game
-        this.load.image('backgrounds', 'assets/images/background-mine.png');
-        this.load.image('miner', 'assets/images/user.png');
+        this.load.image('backgrounds', 'assets/images/play_bg.jpg');
+        this.load.image('miner', 'assets/images/user_2.png');
+        this.load.image('miner2', 'assets/images/user.png');
         this.load.image('mine-door', 'assets/images/mine-door.png');
         this.load.image('wood', 'assets/images/wood.png');
         this.load.image('back', 'assets/images/back.png');
         this.load.image('hook', 'assets/images/hook.png');
-        this.load.image('gold-small', 'assets/images/gold-1.png');
-        this.load.image('gold-medium', 'assets/images/gold-2.png');
+        this.load.image('gold-small', 'assets/images/gold-3.png');
+        this.load.image('gold-medium', 'assets/images/gold-3.png');
         this.load.image('gold-large', 'assets/images/gold-3.png');
         this.load.image('rock-small', 'assets/images/rock-1.png');
-        this.load.image('rock-medium', 'assets/images/rock-2.png');
-        this.load.image('rock-large', 'assets/images/rock-3.png');
+        this.load.image('rock-medium', 'assets/images/rock-1.png');
+        this.load.image('rock-large', 'assets/images/rock-1.png');
         this.load.image('shop-button', 'assets/images/shop.png');
         this.load.audio('boom', 'assets/sounds/boom.mp3');
         this.load.audio('mine', 'assets/sounds/mine.mp3');
@@ -54,6 +57,10 @@ class RentedMineGameScene extends Phaser.Scene {
         this.hookedItem = null;
         this.swingAngle = 0;
         this.swingDirection = 1;
+        this.isTouching = false;
+        this.lastTextureChange = 0; // Lưu thời điểm lần cuối đổi texture
+        this.textureChangeDelay = 300;
+        this.retractSpeed = 4 * gameState.upgrades.ropeSpeed;
 
         // Lấy kích thước màn hình game
         const gameWidth = this.scale.width;
@@ -76,20 +83,29 @@ class RentedMineGameScene extends Phaser.Scene {
         });
 
         // Tạo người thợ mỏ ở vị trí trên cùng giữa màn hình
-        this.miner = this.add.image(gameWidth / 2, 0, 'mine-door')
-            .setPosition(gameWidth / 2, 270)
-            .setOrigin(0.5, 0.75);
+        // this.miner = this.add.image(gameWidth / 2, 0, 'mine-door')
+        //     .setPosition(gameWidth / 2, 270)
+        //     .setOrigin(0.5, 0.75);
 
-        this.miner = this.add.image(gameWidth / 2, 0, 'miner')
-            .setPosition(gameWidth / 2, 330)
-            .setOrigin(0.75, 0.75);
-        this.miner.setDisplaySize(150, 160);
+        this.miner = this.add.sprite(gameWidth / 2, 0, 'miner2')
+            .setPosition(gameWidth / 2, 270)
+            .setOrigin(0.35, 0.72);
+        this.miner.setDisplaySize(200, 200);
+
+        this.tweens.add({
+            targets: this.miner,
+            scaleX: 1.1,
+            scaleY: 1.1,
+            yoyo: true,
+            duration: 150
+        });
 
         // Tạo hook và dây
         this.rope = this.add.graphics();
         this.hook = this.physics.add.image(gameWidth / 2, 0, 'hook');
         this.hook.setOrigin(0.5, 0.5);
-        this.hook.setDisplaySize(20, 20);
+        this.hook.setDisplaySize(40, 30);
+        this.hook.body.setSize(160, 160);
         // Thiết lập ranh giới thế giới game
         this.physics.world.setBounds(0, 0, gameWidth, gameHeight);
 
@@ -109,31 +125,27 @@ class RentedMineGameScene extends Phaser.Scene {
         this.treasures = this.physics.add.group();
         this.spawnTreasures(gameWidth, gameHeight);
 
-        // Tạo các phần tử giao diện người dùng
-
-
-
         // Score
-        this.bg_scoreText = this.add.image(0, 0, `wood`)
-            .setScale(0.25, 0.1)
-            .setOrigin(0, 0)
-            .setPosition(0, 100);
         this.scoreText = this.add.text(0, 0, `Gold: ${gameState.gold}`, {
             fontSize: '34px',
             fontFamily: 'MyFont',
-            fill: '#ffd700'
+            fontWeight: 'bold',
+            stroke: '#000000',
+            strokeThickness: 3,
+            fill: '#ffffff'
         })
             .setOrigin(0, 0)
             .setPosition(60, 130);
         // Tạo nút Shop ở bên phải
-        const shadow = this.add.image(gameWidth - 200 + 7, 200 + 7, 'shop-button');
-        shadow.setTint(0x000000); // Tô màu đen
-        shadow.setAlpha(0.5); // Làm mờ
-        shadow.setDisplaySize(250, 250);
-
-        const shopButton = this.add.image(gameWidth - 200, 200, 'shop-button')
+        const shopButton = this.add.text(gameWidth - 170, 30, 'Shop', {
+            fontSize: '44px',
+            fontFamily: 'MyFont',
+            fontWeight: 'bold',
+            stroke: '#000000',
+            strokeThickness: 3,
+            fill: '#ffffff'
+        })
             .setInteractive()
-            .setDisplaySize(250, 250);
 
         shopButton.on('pointerdown', () => {
             this.scene.pause();
@@ -143,6 +155,24 @@ class RentedMineGameScene extends Phaser.Scene {
         // Thiết lập điều khiển bàn phím cho các phím mũi tên
         this.cursors = this.input.keyboard.createCursorKeys();
 
+        // Thêm xử lý sự kiện touch
+        this.input.on('pointerdown', (pointer) => {
+            this.isTouching = true;
+
+            // Nếu đang móc đá và có pháo, sử dụng pháo
+            if (this.hookedItem &&
+                this.hookedItem.getData('type') === 'rock') {
+                this.DynamicUsed()
+            }
+            // Nếu không đang mở rộng hoặc thu hồi, bắt đầu mở rộng
+            else if (!this.hookExtending && !this.hookRetracting) {
+                this.hookExtending = true;
+            }
+        });
+
+        this.input.on('pointerup', () => {
+            this.isTouching = false;
+        });
     }
     // Xử lý khi hook va chạm với ranh giới thế giới
     onHitWorldBounds(up, down, left, right) {
@@ -154,20 +184,33 @@ class RentedMineGameScene extends Phaser.Scene {
         }
     }
 
-    update(gameWidth, gameHeight) {
+    update(time) {
+        const gameWidth = this.scale.width;
+        const gameHeight = this.scale.height;
+
+        // Update 
+        this.scoreText.setText('Gold: ' + gameState.gold);
+
+        
         if (this.gameOver) return;
         // Cập nhật chuyển động lắc của hook
         this.updateHookSwing(gameWidth, gameHeight);
 
-        // Kiểm tra phím mũi tên xuống để mở rộng hook
-        if ((this.cursors.down.isDown || this.cursors.space.isDown) && !this.hookExtending && !this.hookRetracting) {
+        // Kiểm tra phím mũi tên xuống hoặc touch để mở rộng hook
+        if ((this.cursors.down.isDown || this.cursors.space.isDown || this.isTouching) && !this.hookExtending && !this.hookRetracting) {
             this.hookExtending = true;
         }
 
         // Cập nhật độ dài và vị trí của dây
         if (this.hookExtending) {
             this.extendRope(gameWidth, gameHeight);
+            this.miner.setTexture('miner2');
         } else if (this.hookRetracting) {
+            if (time > this.lastTextureChange + this.textureChangeDelay) {
+                const currentTexture = this.miner.texture.key;
+                this.miner.setTexture(currentTexture === 'miner' ? 'miner2' : 'miner');
+                this.lastTextureChange = time; // Cập nhật thời điểm đổi texture
+            }
             this.retractRope(gameWidth, gameHeight);
         }
 
@@ -180,8 +223,15 @@ class RentedMineGameScene extends Phaser.Scene {
         // Nếu hook có vật phẩm, di chuyển vật phẩm theo hook
         if (this.hookedItem) {
             // Đặt vị trí vật phẩm bên dưới hook
-            this.hookedItem.x = this.hook.x;
-            this.hookedItem.y = this.hook.y + 20;
+            // Chuyển tỉ lệ sang độ
+            let angleDeg = this.swingAngle * 60;
+            let angleRad = Phaser.Math.DegToRad(angleDeg);
+
+            let distance = 15;
+            this.hookedItem.x = this.hook.x + distance * Math.sin(angleRad);
+            this.hookedItem.y = this.hook.y + distance * Math.cos(angleRad);
+
+
         }
 
         // Kiểm tra va chạm với vật phẩm chỉ khi hook đang mở rộng
@@ -203,7 +253,7 @@ class RentedMineGameScene extends Phaser.Scene {
             }
 
             // Tính toán vị trí hook dựa trên góc và độ dài dây mặc định
-            const baseRopeLength = 80; // Khoảng cách cơ bản khi không mở rộng
+            const baseRopeLength = 70; // Khoảng cách cơ bản khi không mở rộng
             const hookX = this.miner.x + Math.sin(this.swingAngle) * baseRopeLength;
             const hookY = this.miner.y + Math.cos(this.swingAngle) * baseRopeLength;
 
@@ -219,7 +269,7 @@ class RentedMineGameScene extends Phaser.Scene {
         this.rope.clear();
 
         // Vẽ đường dây từ người thợ đến hook
-        this.rope.lineStyle(5, 0xffd700);
+        this.rope.lineStyle(5, 0x44423d);
         this.rope.beginPath();
         this.rope.moveTo(this.miner.x, this.miner.y);
         this.rope.lineTo(this.hook.x, this.hook.y);
@@ -234,21 +284,21 @@ class RentedMineGameScene extends Phaser.Scene {
 
         // Định nghĩa kích thước cho va chạm
         const itemSizes = {
-            'gold-small': { width: 30, height: 30 },
-            'gold-medium': { width: 40, height: 40 },
-            'gold-large': { width: 50, height: 50 },
-            'rock-small': { width: 30, height: 30 },
-            'rock-medium': { width: 40, height: 40 },
-            'rock-large': { width: 50, height: 50 }
+            'gold-small': { width: 0.04, height: 0.04 },
+            'gold-medium': { width: 0.055, height: 0.055 },
+            'gold-large': { width: 0.075, height: 0.075 },
+            'rock-small': { width: 0.04, height: 0.04 },
+            'rock-medium': { width: 0.055, height: 0.055 },
+            'rock-large': { width: 0.075, height: 0.075 }
         };
 
         // Tạo vàng và đá ngẫu nhiên
-        for (let i = 0; i < 45; i++) {
+        for (let i = 0; i < 100; i++) {
             // Điều chỉnh khu vực tạo theo kích thước màn hình
             const x = Phaser.Math.Between(50, gameWidth - 50);
-            const y = Phaser.Math.Between(400, gameHeight - 50);
+            const y = Phaser.Math.Between(450, gameHeight - 50);
 
-            if (Phaser.Math.Between(1, 10) <= 4) {
+            if (Phaser.Math.Between(1, 10) <= (3 + gameState.upgrades.lucky)) {
                 // Chọn kích thước vàng ngẫu nhiên
                 const goldType = Phaser.Math.Between(1, 3);
                 let goldKey, goldValue, goldSize;
@@ -275,8 +325,7 @@ class RentedMineGameScene extends Phaser.Scene {
 
                 // Điều chỉnh kích thước hình ảnh vàng theo kích thước va chạm
                 const goldSizeInfo = itemSizes[goldKey];
-                gold.setDisplaySize(goldSizeInfo.width, goldSizeInfo.height);
-
+                gold.setScale(goldSizeInfo.width, goldSizeInfo.height);
                 gold.setData('value', goldValue);
                 gold.setData('type', 'gold');
                 gold.setData('size', goldSize); // Lưu kích thước để tính tốc độ kéo
@@ -286,7 +335,7 @@ class RentedMineGameScene extends Phaser.Scene {
                 gold.body.immovable = true;
 
                 // Cập nhật thân vật lý để khớp với kích thước hiển thị
-                gold.body.setSize(goldSizeInfo.width, goldSizeInfo.height);
+
             } else {
                 // Chọn kích thước đá ngẫu nhiên
                 const rockType = Phaser.Math.Between(1, 3);
@@ -314,8 +363,7 @@ class RentedMineGameScene extends Phaser.Scene {
 
                 // Điều chỉnh kích thước hình ảnh đá theo kích thước va chạm
                 const rockSizeInfo = itemSizes[rockKey];
-                rock.setDisplaySize(rockSizeInfo.width, rockSizeInfo.height);
-                rock.body.setSize(rockSizeInfo.width * 20, rockSizeInfo.height);
+                rock.setScale(rockSizeInfo.width, rockSizeInfo.height);
                 rock.setData('type', 'rock');
                 rock.setData('value', rockValue);
                 rock.setData('size', rockSize); // Lưu kích thước để tính tốc độ kéo
@@ -355,42 +403,22 @@ class RentedMineGameScene extends Phaser.Scene {
     // Thu hồi dây
     retractRope(gameWidth, gameHeight) {
         // Tốc độ thu hồi cơ bản dựa trên nâng cấp
-        let retractSpeed = 4 * gameState.upgrades.ropeSpeed;
-
         // Nếu đang mang vật phẩm, điều chỉnh tốc độ theo loại và kích thước
         if (this.hookedItem) {
             const itemType = this.hookedItem.getData('type');
             const itemSize = this.hookedItem.getData('size');
             if (itemType === 'gold') {
-                retractSpeed = (4 - itemSize) * gameState.upgrades.ropeSpeed;
+                this.retractSpeed = (4 - itemSize) * gameState.upgrades.ropeSpeed;
             } else if (itemType === 'rock') {
-                retractSpeed = Math.max(1.5, (4 - itemSize)) * gameState.upgrades.ropeSpeed;
-
-                // Nếu người chơi có thuốc nổ, họ có thể phá đá
-                if (gameState.upgrades.hasDynamite > 0 && this.cursors.up.isDown) {
-                    gameState.upgrades.hasDynamite = gameState.upgrades.hasDynamite - 1
-                    this.hookedItem.destroy();
-                    this.hookedItem = null;
-                    this.sound.play('boom');
-                    // Hiển thị hiệu ứng nổ
-                    this.exploxer = this.add.circle(this.hook.x, this.hook.y, 30, 0xff0000).setAlpha(0.8);
-                    this.tweens.add({
-                        targets: this.exploxer,
-                        scale: { from: 3, to: 0 },
-                        duration: 500,
-                        ease: 'Power2'
-                    });
-
-                    // Đặt lại tốc độ thu hồi sau khi phá đá
-                    retractSpeed = 4 * gameState.upgrades.ropeSpeed;
-                    setTimeout(() => {
-                        this.exploxer.destroy();
-                    }, 500);
+                this.retractSpeed = Math.max(1.5, (4 - itemSize)) * gameState.upgrades.ropeSpeed;
+                if (this.cursors.up.isDown) {
+                    this.DynamicUsed()
                 }
+                
             }
         }
 
-        this.hookLength -= retractSpeed;
+        this.hookLength -= this.retractSpeed;
 
         // Tính toán vị trí hook dựa trên góc cố định và độ dài giảm dần
         const hookX = this.miner.x + Math.sin(this.extendAngle) * (this.hookLength + 50);
@@ -449,5 +477,28 @@ class RentedMineGameScene extends Phaser.Scene {
         const scale = targetWidth / imgWidth;
         image.setScale(scale);
         image.setPosition(targetWidth / 2, targetHeight / 2);
+    }
+
+    DynamicUsed() {
+        if (gameState.upgrades.dynamite > 0) {
+            gameState.upgrades.dynamite = gameState.upgrades.dynamite - 1
+            this.hookedItem.destroy();
+            this.hookedItem = null;
+            this.sound.play('boom');
+            // Hiển thị hiệu ứng nổ
+            this.exploxer = this.add.circle(this.hook.x, this.hook.y, 30, 0xff0000).setAlpha(0.8);
+            this.tweens.add({
+                targets: this.exploxer,
+                scale: { from: 3, to: 0 },
+                duration: 500,
+                ease: 'Power2'
+            });
+
+            // Đặt lại tốc độ thu hồi sau khi phá đá
+            this.retractSpeed = 4 * gameState.upgrades.ropeSpeed;
+            setTimeout(() => {
+                this.exploxer.destroy();
+            }, 500);
+        }
     }
 } 

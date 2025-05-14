@@ -27,16 +27,19 @@ const config = {
         InputMineScene,
         RentedMineGameScene,
         ShopScene
-    ] // Các scene sẽ được hiển thị trong game
+    ], // Các scene sẽ được hiển thị trong game
 };
 
 // Global game state that persists between scenes
 const gameState = {
-    gold: 1000, // Điểm số của người chơi
+    gold: 1000,
+    user: {},
     upgrades: {
         ropeSpeed: 1, // Tốc độ kéo dây
-        hookStrength: 1, // Độ mạnh của hook
-        hasDynamite: 1 // Có hay không pháo hoa
+        lucky: 0,
+        book: 0,
+        polish: 0,
+        dynamite: 0,
     }
 };
 

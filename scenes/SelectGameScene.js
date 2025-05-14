@@ -47,7 +47,7 @@ class SelectGameScene extends Phaser.Scene {
 
 
         logoutButton.on('pointerdown', () => {
-            sessionStorage.removeItem('user');
+            gameState.user = null;
             this.scene.start('StartScene');
         });
 

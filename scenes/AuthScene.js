@@ -12,9 +12,7 @@ class AuthScene extends Phaser.Scene {
     }
 
     create() {
-
-        const user = sessionStorage.getItem('user');
-        if (user) {
+        if (gameState.user?.access_token) {
             this.scene.start('SelectGameScene');
         }
 
@@ -65,7 +63,11 @@ class AuthScene extends Phaser.Scene {
                 return;
             }
             if (username === 'admin' && password === '123') {
-                sessionStorage.setItem('user', username);
+                gameState.user = {
+                    username: username,
+                    password: password,
+                    access_token: '123',
+                }
                 this.scene.start('SelectGameScene');
             } else {
                 alert('Username or password is incorrect');
