@@ -13,7 +13,7 @@ const config = {
         default: 'arcade', // Sử dụng phương thức vật lý arcade
         arcade: {
             gravity: { y: 0 }, // Không có trọng lực
-            debug: false // Không hiển thị debug
+            debug: true // Không hiển thị debug
         }
     },
     parent: 'game-container',
@@ -21,10 +21,10 @@ const config = {
         createContainer: true
     },
     scene: [
-        StartScene,
-        AuthScene,
-        SelectGameScene,
-        InputMineScene,
+        // StartScene,
+        // AuthScene,
+        // SelectGameScene,
+        // InputMineScene,
         RentedMineGameScene,
         ShopScene
     ] // Các scene sẽ được hiển thị trong game
