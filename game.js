@@ -21,13 +21,13 @@ const config = {
         createContainer: true
     },
     scene: [
-        StartScene,
-        AuthScene,
-        SelectGameScene,
-        InputMineScene,
+        // StartScene,
+        // AuthScene,
+        // SelectGameScene,
+        // InputMineScene,
         RentedMineGameScene,
         ShopScene
-    ] // Các scene sẽ được hiển thị trong game
+    ], // Các scene sẽ được hiển thị trong game
 };
 
 // Global game state that persists between scenes
