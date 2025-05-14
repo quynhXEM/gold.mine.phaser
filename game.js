@@ -13,7 +13,7 @@ const config = {
         default: 'arcade', // Sử dụng phương thức vật lý arcade
         arcade: {
             gravity: { y: 0 }, // Không có trọng lực
-            debug: true // Không hiển thị debug
+            debug: false // Không hiển thị debug
         }
     },
     parent: 'game-container',
@@ -21,10 +21,10 @@ const config = {
         createContainer: true
     },
     scene: [
-        // StartScene,
-        // AuthScene,
-        // SelectGameScene,
-        // InputMineScene,
+        StartScene,
+        AuthScene,
+        SelectGameScene,
+        InputMineScene,
         RentedMineGameScene,
         ShopScene
     ], // Các scene sẽ được hiển thị trong game
@@ -32,11 +32,14 @@ const config = {
 
 // Global game state that persists between scenes
 const gameState = {
-    gold: 1000, // Điểm số của người chơi
+    gold: 1000,
+    user: {},
     upgrades: {
         ropeSpeed: 1, // Tốc độ kéo dây
-        hookStrength: 1, // Độ mạnh của hook
-        hasDynamite: 1 // Có hay không pháo hoa
+        lucky: 0,
+        book: 0,
+        polish: 0,
+        dynamite: 0,
     }
 };
 
