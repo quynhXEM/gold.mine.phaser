@@ -15,6 +15,7 @@ class StartScene extends Phaser.Scene {
         // Load assets for the start screen
         this.load.image('background', 'assets/images/start_bg.jpg');
         this.load.image('start-button', 'assets/images/play-btn.png');
+        this.load.image('full_btn', 'assets/images/full_screen.png');
     }
 
     create() {
@@ -27,8 +28,16 @@ class StartScene extends Phaser.Scene {
         this.scaleBackgroundToFill(this.bg, this.gameWidth, this.gameHeight);
 
         // Make the background interactive
-        this.bg.setInteractive();
-
+        const enterFullBtn = this.add.image(this.gameWidth - 100, 100, 'full_btn')
+        .setScale(0.2)
+        .setInteractive()
+        .on('pointerup', () => {
+            if (!this.scale.isFullscreen) {
+                this.scale.startFullscreen();
+            } else {
+                this.scale.stopFullscreen();
+            }
+        });
         // Thêm dòng chữ "Tap to Start" ở giữa màn hình
         this.tapText = this.add.text(820, 550, 'START', {
             fontFamily: 'MyFont',
@@ -38,6 +47,8 @@ class StartScene extends Phaser.Scene {
             fill: '#ffffff'
         }).setOrigin(0.5)
         .setPosition(820, 560)
+        this.tapText.setInteractive();
+
 
         this.up = this.add.text(820, 550, '⬇️ Drop Claw', {
             fontFamily: 'MyFont',
@@ -67,7 +78,7 @@ class StartScene extends Phaser.Scene {
         });
 
         // Add click event to start the game
-        this.bg.on('pointerdown', () => {
+        this.tapText.on('pointerdown', () => {
             this.cameras.main.fadeOut(500, 0, 0, 0);
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('AuthScene');
