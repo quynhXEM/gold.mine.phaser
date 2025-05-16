@@ -29,13 +29,11 @@ class RentedMineGameScene extends Phaser.Scene {
     preload() {
         // farme 
         this.load.spritesheet('miner', 'assets/images/user_farme/user.png', {
-            frameWidth: 400,
-            frameHeight: 400
+            frameWidth: 200,
+            frameHeight: 200
         });
         // Tải hình ảnh cho game
         this.load.image('backgrounds', 'assets/images/background-mine.png');
-        // this.load.image('miner', 'assets/images/user_2.png');
-        // this.load.image('miner2', 'assets/images/user.png');
         this.load.image('mine-door', 'assets/images/mine-door.png');
         this.load.image('wood', 'assets/images/wood.png');
         this.load.image('back', 'assets/images/back.png');
@@ -92,7 +90,7 @@ class RentedMineGameScene extends Phaser.Scene {
         // Tạo animation
         this.anims.create({
             key: 'pull',
-            frames: this.anims.generateFrameNumbers('miner', { start: 0, end: 9 }),
+            frames: this.anims.generateFrameNumbers('miner', { start: 0, end: 10 }),
             frameRate: 8,
             repeat: -1 // lặp vô hạn
         });
