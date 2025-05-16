@@ -21,11 +21,11 @@ const config = {
         createContainer: true
     },
     scene: [
-        StartScene,
-        IntroductionScene,
-        AuthScene,
-        SelectGameScene,
-        InputMineScene,
+        // StartScene,
+        // IntroductionScene,
+        // AuthScene,
+        // SelectGameScene,
+        // InputMineScene,
         RentedMineGameScene,
         ShopScene
     ], // Các scene sẽ được hiển thị trong game
