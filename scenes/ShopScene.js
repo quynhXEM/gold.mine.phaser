@@ -11,6 +11,7 @@ class ShopScene extends Phaser.Scene {
         this.load.image('polish', 'assets/images/polish.png');
         this.load.image('lucky', 'assets/images/lucky.png');
         this.load.image('book', 'assets/images/book.png');
+        this.load.audio('buy', 'assets/sounds/buy.mp3');
     }
 
     create() {
@@ -44,7 +45,24 @@ class ShopScene extends Phaser.Scene {
             strokeThickness: 16
         }).setOrigin(0.5);
 
+        // Score
+        this.scoreText = this.add.text(this.gameWidth - 400, 50, `Gold: ${gameState.gold}`, {
+            fontSize: '54px',
+            fontFamily: 'MyFont',
+            fontWeight: 'bold',
+            stroke: '#000000',
+            strokeThickness: 3,
+            fill: '#ffffff'
+        })
+            .setOrigin(0, 0)
+
         const descriptionText = this.add.text(300, 400, this.description, {
+            fontSize: '38px',
+            fontFamily: 'MyFont',
+            fill: '#000000'
+        })
+
+        const click_buy = this.add.text(300, 600, "Click item to buy", {
             fontSize: '38px',
             fontFamily: 'MyFont',
             fill: '#000000'
@@ -58,6 +76,9 @@ class ShopScene extends Phaser.Scene {
         this.createShopItem(itemSpacing * 4, this.gameHeight / 2 + 250, 'Polish', 'Increase the value of gold ores', 200, 'polish', true, 'polish', descriptionText);  
     }
 
+    update(time) {
+        this.scoreText.setText('Gold: ' + gameState.gold);
+    }
     createShopItem(x, y, name, description, price, upgradeKey, upgradeValue, image, descriptionText) {
         // Item background
         const itemBg = this.add.image(x, y, image);
@@ -78,8 +99,8 @@ class ShopScene extends Phaser.Scene {
             if (gameState.gold >= price) {
                 gameState.gold -= price;
                 gameState.upgrades[upgradeKey] += 1;
+                this.sound.play('buy');
             }
-            console.log(gameState);
         });
     }
 

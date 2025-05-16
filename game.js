@@ -22,6 +22,7 @@ const config = {
     },
     scene: [
         StartScene,
+        IntroductionScene,
         AuthScene,
         SelectGameScene,
         InputMineScene,
@@ -42,6 +43,15 @@ const gameState = {
         dynamite: 0,
     }
 };
+
+const gameinfo = {
+    version: '1.0.0',
+    brand: "uGOLD",
+    name: 'Gold Mining Game',
+    author: 'SOC',
+    url: 'https://ugold.io'
+    
+}
 
 // Create the game
 const game = new Phaser.Game(config); 

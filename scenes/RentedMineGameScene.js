@@ -27,10 +27,15 @@ class RentedMineGameScene extends Phaser.Scene {
     }
 
     preload() {
+        // farme 
+        this.load.spritesheet('miner', 'assets/images/user_farme/user.png', {
+            frameWidth: 400,
+            frameHeight: 400
+        });
         // Tải hình ảnh cho game
-        this.load.image('backgrounds', 'assets/images/play_bg.jpg');
-        this.load.image('miner', 'assets/images/user_2.png');
-        this.load.image('miner2', 'assets/images/user.png');
+        this.load.image('backgrounds', 'assets/images/background-mine.png');
+        // this.load.image('miner', 'assets/images/user_2.png');
+        // this.load.image('miner2', 'assets/images/user.png');
         this.load.image('mine-door', 'assets/images/mine-door.png');
         this.load.image('wood', 'assets/images/wood.png');
         this.load.image('back', 'assets/images/back.png');
@@ -45,6 +50,7 @@ class RentedMineGameScene extends Phaser.Scene {
         this.load.audio('boom', 'assets/sounds/boom.mp3');
         this.load.audio('mine', 'assets/sounds/mine.mp3');
         this.load.audio('collect', 'assets/sounds/collect.mp3');
+        this.load.audio('claw_success', 'assets/sounds/claw_success.mp3');
     }
 
     create() {
@@ -83,22 +89,19 @@ class RentedMineGameScene extends Phaser.Scene {
         });
 
         // Tạo người thợ mỏ ở vị trí trên cùng giữa màn hình
-        // this.miner = this.add.image(gameWidth / 2, 0, 'mine-door')
-        //     .setPosition(gameWidth / 2, 270)
-        //     .setOrigin(0.5, 0.75);
-
-        this.miner = this.add.sprite(gameWidth / 2, 0, 'miner2')
-            .setPosition(gameWidth / 2, 270)
-            .setOrigin(0.35, 0.72);
-        this.miner.setDisplaySize(200, 200);
-
-        this.tweens.add({
-            targets: this.miner,
-            scaleX: 1.1,
-            scaleY: 1.1,
-            yoyo: true,
-            duration: 150
+        // Tạo animation
+        this.anims.create({
+            key: 'pull',
+            frames: this.anims.generateFrameNumbers('miner', { start: 0, end: 9 }),
+            frameRate: 8,
+            repeat: -1 // lặp vô hạn
         });
+
+        // Tạo sprite và chạy animation
+        this.miner = this.add.sprite(gameWidth / 2, 0, 'miner')
+            .setPosition(gameWidth / 2, 270)
+            .setOrigin(0.35, 0.70);
+        this.miner.setDisplaySize(200, 200);
 
         // Tạo hook và dây
         this.rope = this.add.graphics();
@@ -191,7 +194,7 @@ class RentedMineGameScene extends Phaser.Scene {
         // Update 
         this.scoreText.setText('Gold: ' + gameState.gold);
 
-        
+
         if (this.gameOver) return;
         // Cập nhật chuyển động lắc của hook
         this.updateHookSwing(gameWidth, gameHeight);
@@ -204,11 +207,9 @@ class RentedMineGameScene extends Phaser.Scene {
         // Cập nhật độ dài và vị trí của dây
         if (this.hookExtending) {
             this.extendRope(gameWidth, gameHeight);
-            this.miner.setTexture('miner2');
+            this.miner.play('pull');
         } else if (this.hookRetracting) {
             if (time > this.lastTextureChange + this.textureChangeDelay) {
-                const currentTexture = this.miner.texture.key;
-                this.miner.setTexture(currentTexture === 'miner' ? 'miner2' : 'miner');
                 this.lastTextureChange = time; // Cập nhật thời điểm đổi texture
             }
             this.retractRope(gameWidth, gameHeight);
@@ -269,7 +270,7 @@ class RentedMineGameScene extends Phaser.Scene {
         this.rope.clear();
 
         // Vẽ đường dây từ người thợ đến hook
-        this.rope.lineStyle(5, 0x44423d);
+        this.rope.lineStyle(5, 0x010001);
         this.rope.beginPath();
         this.rope.moveTo(this.miner.x, this.miner.y);
         this.rope.lineTo(this.hook.x, this.hook.y);
@@ -414,7 +415,7 @@ class RentedMineGameScene extends Phaser.Scene {
                 if (this.cursors.up.isDown) {
                     this.DynamicUsed()
                 }
-                
+
             }
         }
 
@@ -432,9 +433,11 @@ class RentedMineGameScene extends Phaser.Scene {
         if (this.hookLength <= 0) {
             this.hookLength = 0;
             this.hookRetracting = false;
-
+            this.miner.stop('pull');
+            this.miner.setTexture('miner');
             // Nếu đang mang vật phẩm, cộng điểm và xóa vật phẩm
             if (this.hookedItem) {
+                this.sound.play('collect');
                 gameState.gold += this.hookedItem.getData('value');
                 this.scoreText.setText('Gold: ' + gameState.gold);
                 this.hookedItem.destroy();
@@ -455,6 +458,7 @@ class RentedMineGameScene extends Phaser.Scene {
         if (this.hookedItem) return;
 
         // Bắt đầu thu hồi với vật phẩm
+        this.sound.play('claw_success');
         this.hookedItem = treasure;
         this.hookExtending = false;
         this.hookRetracting = true;

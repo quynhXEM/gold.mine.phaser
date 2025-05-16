@@ -13,9 +13,13 @@ class StartScene extends Phaser.Scene {
 
     preload() {
         // Load assets for the start screen
-        this.load.image('background', 'assets/images/start_bg.jpg');
+        this.load.image('background', 'assets/images/start.png');
+        this.load.image('start_btn', 'assets/images/start_btn.png');
         this.load.image('start-button', 'assets/images/play-btn.png');
         this.load.image('full_btn', 'assets/images/full_screen.png');
+        this.load.image('uGOLD', 'assets/images/uGOLD.png');
+        this.load.image('introduction_btn', 'assets/images/introduction_btn.png');
+        this.load.image('homepage_btn', 'assets/images/homepage_btn.png');
     }
 
     create() {
@@ -38,35 +42,71 @@ class StartScene extends Phaser.Scene {
                 this.scale.stopFullscreen();
             }
         });
+
+        this.start_btn = this.add.image(720, 570, 'start_btn')
+        this.start_btn.setInteractive();
         // Thêm dòng chữ "Tap to Start" ở giữa màn hình
-        this.tapText = this.add.text(820, 550, 'START', {
+        this.tapText = this.add.text(720, 560, 'START', {
             fontFamily: 'MyFont',
             fontSize: '100px',
             stroke: '#671700',         // màu viền
             strokeThickness: 16,
             fill: '#ffffff'
         }).setOrigin(0.5)
-        .setPosition(820, 560)
-        this.tapText.setInteractive();
 
 
-        this.up = this.add.text(820, 550, '⬇️ Drop Claw', {
+        this.uGOLD = this.add.image(0,0, 'uGOLD')
+        .setScale(0.15)
+        .setPosition(150,  this.gameHeight - 150 )
+
+        this.introduction_btn = this.add.image(0,0, 'introduction_btn')
+        .setScale(0.25)
+        .setPosition(450,  this.gameHeight - 100)
+        .setInteractive()
+
+        this.homepage_btn = this.add.image(0,0, 'homepage_btn')
+        .setScale(0.25)
+        .setPosition(700,  this.gameHeight - 100)
+        .setInteractive()
+
+        this.copyright = this.add.text(300 , this.gameHeight - 30, `Copyright @ ${new Date().getFullYear()} ${gameinfo.brand}. All rights reserved.`, {
             fontFamily: 'MyFont',
-            fontSize: '60px',
-            stroke: '#671700',         // màu viền
-            strokeThickness: 16,
+            fontSize: '20px',
             fill: '#ffffff'
-        }).setOrigin(0.5)
-        .setPosition(350, this.gameHeight - 70)
+        })
 
-        this.down = this.add.text(820, 550, '⬆️ Toss Dynamite', {
+        this.version = this.add.text( this.copyright.x + this.copyright.width + 100 , this.gameHeight - 30, `Version ${gameinfo.version}`, {
             fontFamily: 'MyFont',
-            fontSize: '60px',
-            stroke: '#671700',         // màu viền
-            strokeThickness: 16,
+            fontSize: '20px',
             fill: '#ffffff'
-        }).setOrigin(0.5)
-        .setPosition(850, this.gameHeight - 70)
+        })
+
+        this.introduction_btn.on('pointerdown', () => {
+            this.scene.pause();
+            this.scene.start('IntroductionScene');
+        })
+
+        this.homepage_btn.on('pointerdown', () => {
+            window.open(gameinfo.url, '_blank');
+        })
+
+        // this.up = this.add.text(820, 550, '⬇️ Drop Claw', {
+        //     fontFamily: 'MyFont',
+        //     fontSize: '60px',
+        //     stroke: '#671700',         // màu viền
+        //     strokeThickness: 16,
+        //     fill: '#ffffff'
+        // }).setOrigin(0.5)
+        // .setPosition(350, this.gameHeight - 70)
+
+        // this.down = this.add.text(820, 550, '⬆️ Toss Dynamite', {
+        //     fontFamily: 'MyFont',
+        //     fontSize: '60px',
+        //     stroke: '#671700',         // màu viền
+        //     strokeThickness: 16,
+        //     fill: '#ffffff'
+        // }).setOrigin(0.5)
+        // .setPosition(850, this.gameHeight - 70)
 
         // Tạo hiệu ứng nhấp nháy bằng tween
         this.tweens.add({
@@ -78,7 +118,7 @@ class StartScene extends Phaser.Scene {
         });
 
         // Add click event to start the game
-        this.tapText.on('pointerdown', () => {
+        this.start_btn.on('pointerdown', () => {
             this.cameras.main.fadeOut(500, 0, 0, 0);
             this.cameras.main.once('camerafadeoutcomplete', () => {
                 this.scene.start('AuthScene');
