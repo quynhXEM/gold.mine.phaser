@@ -19,7 +19,7 @@ class IntroductionScene extends Phaser.Scene {
         this.scaleBackgroundToFill(this.bg, this.gameWidth, this.gameHeight);
 
         this.introduction_btn = this.add.image(0,0, 'introduction_btn')
-        .setScale(0.25)
+        .setScale(0.35)
         .setPosition(450,  this.gameHeight - 100)
         .setInteractive()
 

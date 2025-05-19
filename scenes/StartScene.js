@@ -20,6 +20,7 @@ class StartScene extends Phaser.Scene {
         this.load.image('uGOLD', 'assets/images/uGOLD.png');
         this.load.image('introduction_btn', 'assets/images/introduction_btn.png');
         this.load.image('homepage_btn', 'assets/images/homepage_btn.png');
+        this.load.image('name', 'assets/images/name.png');
     }
 
     create() {
@@ -43,6 +44,8 @@ class StartScene extends Phaser.Scene {
             }
         });
 
+        const name = this.add.image(this.gameWidth / 2,  100, 'name').setScale(1.25);
+
         this.start_btn = this.add.image(720, 570, 'start_btn')
         this.start_btn.setInteractive();
         // Thêm dòng chữ "Tap to Start" ở giữa màn hình
@@ -56,28 +59,26 @@ class StartScene extends Phaser.Scene {
 
 
         this.uGOLD = this.add.image(0,0, 'uGOLD')
-        .setScale(0.15)
+        .setScale(0.3)
         .setPosition(150,  this.gameHeight - 150 )
 
         this.introduction_btn = this.add.image(0,0, 'introduction_btn')
-        .setScale(0.25)
+        .setScale(0.35)
         .setPosition(450,  this.gameHeight - 100)
         .setInteractive()
 
         this.homepage_btn = this.add.image(0,0, 'homepage_btn')
-        .setScale(0.25)
+        .setScale(0.35)
         .setPosition(700,  this.gameHeight - 100)
         .setInteractive()
 
         this.copyright = this.add.text(300 , this.gameHeight - 30, `Copyright @ ${new Date().getFullYear()} ${gameinfo.brand}. All rights reserved.`, {
-            fontFamily: 'MyFont',
-            fontSize: '20px',
+            fontSize: '22px',
             fill: '#ffffff'
         })
 
         this.version = this.add.text( this.copyright.x + this.copyright.width + 100 , this.gameHeight - 30, `Version ${gameinfo.version}`, {
-            fontFamily: 'MyFont',
-            fontSize: '20px',
+            fontSize: '22px',
             fill: '#ffffff'
         })
 
@@ -89,24 +90,6 @@ class StartScene extends Phaser.Scene {
         this.homepage_btn.on('pointerdown', () => {
             window.open(gameinfo.url, '_blank');
         })
-
-        // this.up = this.add.text(820, 550, '⬇️ Drop Claw', {
-        //     fontFamily: 'MyFont',
-        //     fontSize: '60px',
-        //     stroke: '#671700',         // màu viền
-        //     strokeThickness: 16,
-        //     fill: '#ffffff'
-        // }).setOrigin(0.5)
-        // .setPosition(350, this.gameHeight - 70)
-
-        // this.down = this.add.text(820, 550, '⬆️ Toss Dynamite', {
-        //     fontFamily: 'MyFont',
-        //     fontSize: '60px',
-        //     stroke: '#671700',         // màu viền
-        //     strokeThickness: 16,
-        //     fill: '#ffffff'
-        // }).setOrigin(0.5)
-        // .setPosition(850, this.gameHeight - 70)
 
         // Tạo hiệu ứng nhấp nháy bằng tween
         this.tweens.add({
